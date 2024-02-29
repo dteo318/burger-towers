@@ -1,16 +1,16 @@
 # Burger Towers
 
-# Introduction
+## Introduction
 
 A 3D game where you try to build the tallest and juiciest burger!
 
-# How to Run The Game
+## How to Run The Game
 
-# Features
+## Features
 
-# Bugs
+## Bugs
 
-# Creators
+## Creators
 
 Daniel Teo // dteo318@g.ucla.edu // dteo318
 
