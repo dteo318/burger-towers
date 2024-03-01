@@ -35,6 +35,7 @@ export class BurgerTowers extends Scene {
     // TODO - find better background & floor textures/colors
     // TODO - find better burger objs
     this.shapes = {
+      square: new defs.Square(),
       burger_bun: new Shape_From_File(
         "assets/burger-bottom-bun/burger-bottom-bun.obj"
       ),
@@ -46,6 +47,7 @@ export class BurgerTowers extends Scene {
         [0, 1],
       ]),
       sky: new defs.Subdivision_Sphere(4),
+      text: new Text_Line(35),
     };
 
     this.materials = {
@@ -82,6 +84,18 @@ export class BurgerTowers extends Scene {
         diffusivity: 0.5,
         color: hex_color("#87CEEB"),
       }),
+      burger_dollar: new Material(new Textured_Phong(), {
+        ambient: 1,
+        diffusivity: 0.9,
+        specularity: 1,
+        texture: new Texture("assets/burger_dollar.png"),
+      }),
+      text_image: new Material(new Textured_Phong(), {
+        ambient: 1,
+        diffusivity: 0,
+        specularity: 0,
+        texture: new Texture("assets/text.png"),
+      }),
     };
 
     this.initial_camera_location = Mat4.translation(5, -10, -30);
@@ -113,7 +127,10 @@ export class BurgerTowers extends Scene {
     this.stacked_ingredients = [];
     // offset while displaying stacked ingredients
     // offset when stacking ingredients
-    this.stack_offset = 0.75;
+    this.stack_offset = 0.6;
+
+    // point counting for game
+    this.burger_points = 0;
   }
 
   make_control_panel() {
@@ -211,6 +228,7 @@ export class BurgerTowers extends Scene {
         ingredient: this.falling_ingredients[ingredient_count],
         x_offset: burger_x_coords - ingredient_to_burger_x_coords,
       });
+      this.burger_points += 1;
       // reset ingredient
       this.new_ingredient_coords(ingredient_count, t);
     }
@@ -306,6 +324,26 @@ export class BurgerTowers extends Scene {
     let t = program_state.animation_time,
       dt = program_state.animation_delta_time / 1000;
     let model_transform = Mat4.identity();
+
+    // Draw points count
+    let dash_model = Mat4.identity()
+      .times(Mat4.translation(11.8, 19.4, 4, 0))
+      .times(Mat4.scale(1.3, 1.3, 0.2, 5));
+    let point_string = this.burger_points;
+    this.shapes.text.set_string(point_string.toString(), context.context);
+    this.shapes.square.draw(
+      context,
+      program_state,
+      dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
+      this.materials.burger_dollar
+    );
+    dash_model = dash_model.times(Mat4.translation(1, -0.09, 0));
+    this.shapes.text.draw(
+      context,
+      program_state,
+      dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
+      this.materials.text_image
+    );
 
     // Draw background
     const background_transform = model_transform
