@@ -32,6 +32,8 @@ export class BurgerTowers extends Scene {
     // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
     super();
 
+    // TODO - find better background & floor textures/colors
+    // TODO - find better burger objs
     this.shapes = {
       burger_bun: new Shape_From_File(
         "assets/burger-bottom-bun/burger-bottom-bun.obj"
@@ -39,10 +41,11 @@ export class BurgerTowers extends Scene {
       lettuce: new Shape_From_File("assets/lettuce/lettuce.obj"),
       cheese: new Shape_From_File("assets/cheese/cheese.obj"),
       burger_patty: new Shape_From_File("assets/burger-patty/burger-patty.obj"),
-      // sand: new defs.Capped_Cylinder(50, 50, [
-      //   [0, 2],
-      //   [0, 1],
-      // ]),
+      floor: new defs.Capped_Cylinder(50, 50, [
+        [0, 2],
+        [0, 1],
+      ]),
+      sky: new defs.Subdivision_Sphere(4),
     };
 
     this.materials = {
@@ -68,13 +71,17 @@ export class BurgerTowers extends Scene {
         color: hex_color("#000000"),
         texture: new Texture("assets/burger-patty/burger_bake_denoised.png"),
       }),
-      // floor: new Material(new Textured_Phong(), {
-      //   ambient: 0.3,
-      //   diffusivity: 0.9,
-      //   color: hex_color("#ffaf40"),
-      //   smoothness: 64,
-      //   texture: new Texture("assets/sand3.png"),
-      // }),
+      floor: new Material(new defs.Phong_Shader(), {
+        ambient: 0.3,
+        diffusivity: 0.7,
+        specularity: 1,
+        color: hex_color("#D8DBDE"),
+      }),
+      sky: new Material(new defs.Phong_Shader(), {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("#87CEEB"),
+      }),
     };
 
     this.initial_camera_location = Mat4.translation(5, -10, -30);
@@ -300,13 +307,29 @@ export class BurgerTowers extends Scene {
       dt = program_state.animation_delta_time / 1000;
     let model_transform = Mat4.identity();
 
-    // let sand_transform = model_transform
-    //   .times(Mat4.rotation(0, 0, 1, 0))
-    //   .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-    //   .times(Mat4.translation(0, 0, 2))
-    //   .times(Mat4.scale(50, 25, 0.5));
-
-    // this.shapes.sand.draw(context, program_state, sand_transform, this.floor);
+    // Draw background
+    const background_transform = model_transform
+      .times(Mat4.scale(60, 60, 60))
+      .times(Mat4.rotation(0, 0, 1, 0))
+      .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
+      .times(Mat4.rotation(t / 40000, 0, 1, 0));
+    this.shapes.sky.draw(
+      context,
+      program_state,
+      background_transform,
+      this.materials.sky
+    );
+    const floor_transform = model_transform
+      .times(Mat4.rotation(0, 0, 1, 0))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(0, 0, 2))
+      .times(Mat4.scale(50, 25, 0.5));
+    this.shapes.floor.draw(
+      context,
+      program_state,
+      floor_transform,
+      this.materials.floor
+    );
 
     const ingredient_count = 1;
     const ingredient_fall_speed = 5;
