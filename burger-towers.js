@@ -125,6 +125,8 @@ export class BurgerTowers extends Scene {
 
     // ingredients that are currently stacked
     this.stacked_ingredients = [];
+    // ingredients unstacked
+    this.unstacked_ingredients = [];
     // point counting for game
     this.burger_points = 0;
   }
@@ -248,22 +250,14 @@ export class BurgerTowers extends Scene {
     const ingredient = this.falling_ingredients[ingredient_count];
     const x_coord = this.x_spawn[ingredient_count];
     const y_coord = this.y_spawn;
+    const y_offset =
+      (this.ingredient_time_offsets[ingredient_count] - t) * speed;
 
     /* Checks if current x-coord is offscreen, if its not ingredients just drop */
-    if (
-      y_coord + (this.ingredient_time_offsets[ingredient_count] - t) * speed >
-      0
-    ) {
+    if (y_coord + y_offset > -1) {
       const model_transform_ingredient = model_transform
         .times(Mat4.translation(x_coord, y_coord, 0, 0))
-        .times(
-          Mat4.translation(
-            0,
-            (this.ingredient_time_offsets[ingredient_count] - t) * speed,
-            0,
-            0
-          )
-        )
+        .times(Mat4.translation(0, y_offset, 0, 0))
         .times(Mat4.scale(1.5, 1.8, 1, 0));
 
       // this.shapes[ingredient].draw(
@@ -284,6 +278,12 @@ export class BurgerTowers extends Scene {
            Also updated coordinates so it looks more random
         */
     } else {
+      // ingredient missed
+      this.unstacked_ingredients.push({
+        ingredient: this.falling_ingredients[ingredient_count],
+        x_coords: x_coord,
+        y_coords: y_coord + y_offset,
+      });
       this.new_ingredient_coords(ingredient_count, t);
     }
   }
@@ -305,6 +305,22 @@ export class BurgerTowers extends Scene {
             0
           )
         );
+
+      this.shapes[ingredient].draw(
+        context,
+        program_state,
+        model_transform_ingredient,
+        this.materials[ingredient]
+      );
+    }
+  }
+
+  draw_unstacked_ingredients(context, program_state, model_transform) {
+    for (let i = 0; i < this.unstacked_ingredients.length; i++) {
+      const { ingredient, x_coords, y_coords } = this.unstacked_ingredients[i];
+      const model_transform_ingredient = model_transform
+        .times(Mat4.translation(x_coords, y_coords, 0, 0))
+        .times(Mat4.scale(1.5, 1.8, 1, 0));
 
       this.shapes[ingredient].draw(
         context,
@@ -406,6 +422,8 @@ export class BurgerTowers extends Scene {
 
     // rendering ingredients stacked on the burger bun
     this.draw_stacked_ingredients(context, program_state, model_transform);
+    // rendering ingredients on stove top
+    this.draw_unstacked_ingredients(context, program_state, model_transform);
   }
 
   display(context, program_state) {
