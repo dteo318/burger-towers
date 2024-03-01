@@ -100,6 +100,7 @@ export class BurgerTowers extends Scene {
 
     this.initial_camera_location = Mat4.translation(5, -10, -30);
 
+    // TODO - add ability to pause the game
     // pause the game
     this.paused = false;
 
@@ -127,6 +128,7 @@ export class BurgerTowers extends Scene {
     this.stacked_ingredients = [];
     // ingredients unstacked
     this.unstacked_ingredients = [];
+    // TODO - expand on game scoring
     // point counting for game
     this.burger_points = 0;
   }
@@ -173,6 +175,7 @@ export class BurgerTowers extends Scene {
         this.x_movement = this.x_movement + 1;
       }
     });
+    // TODO - add menu and settings options
     // ******** Extra key triggered features ********* //
     // this.key_triggered_button("Change Lighting Color", ['c'], () => {
     //     this.change_lighting_color = true;
@@ -196,6 +199,7 @@ export class BurgerTowers extends Scene {
       this.ingredients[Math.floor(Math.random() * this.ingredients.length)];
   }
 
+  // TODO - smoothen collision detection
   detect_ingredient_collision(ingredient_count, t, speed) {
     // ingredient coordinates
     const ingredient_x_coords = this.x_spawn[ingredient_count];
@@ -235,6 +239,7 @@ export class BurgerTowers extends Scene {
     }
   }
 
+  // TODO - draw shadow under falling ingredients
   draw_falling_ingredient(
     context,
     program_state,
@@ -406,6 +411,7 @@ export class BurgerTowers extends Scene {
       }
     }
 
+    // TODO - draw shadow under burger bun
     // rendering the player burger bun
     const x = this.x_movement;
     const y = this.y_movement;
