@@ -104,8 +104,8 @@ export class BurgerTowers extends Scene {
     this.paused = false;
 
     // burger coordinates
-    this.y_movement = 0;
-    this.x_movement = 0;
+    this.y_movement = 1;
+    this.x_movement = -7;
 
     // ingredients to choose from
     this.ingredients = ["lettuce", "cheese", "burger_patty"];
@@ -125,10 +125,6 @@ export class BurgerTowers extends Scene {
 
     // ingredients that are currently stacked
     this.stacked_ingredients = [];
-    // offset while displaying stacked ingredients
-    // offset when stacking ingredients
-    this.stack_offset = 0.6;
-
     // point counting for game
     this.burger_points = 0;
   }
@@ -154,24 +150,24 @@ export class BurgerTowers extends Scene {
     // ****** User Burger Interactions ****** //
     // Up Movement (arrow key up)
     this.key_triggered_button("Up", ["ArrowUp"], () => {
-      if (this.y_movement < 37 && !this.paused) {
+      if (this.y_movement < 23 && !this.paused) {
         this.y_movement = this.y_movement + 1;
       }
     });
     // Down Movement (arrow key down)
     this.key_triggered_button("Down", ["ArrowDown"], () => {
-      if (this.y_movement > -3 && !this.paused) {
+      if (this.y_movement > -1 && !this.paused) {
         this.y_movement = this.y_movement - 1;
       }
     });
     // Left Movement (arrow key left)
     this.key_triggered_button("Left", ["ArrowLeft"], () => {
-      if (this.x_movement > -37 && !this.paused)
+      if (this.x_movement > -33 && !this.paused)
         this.x_movement = this.x_movement - 1;
     });
     // Right Movement (arrow key right)
     this.key_triggered_button("Right", ["ArrowRight"], () => {
-      if (this.x_movement < 24 && !this.paused) {
+      if (this.x_movement < 20 && !this.paused) {
         this.x_movement = this.x_movement + 1;
       }
     });
@@ -207,10 +203,12 @@ export class BurgerTowers extends Scene {
     // burger coordinates
     const burger_x_coords = this.x_movement;
     // y offset for stacked ingredients contact
-    const burger_y_coords =
-      this.y_movement + this.stack_offset * this.stacked_ingredients.length + 1;
-
-    // scaling coordinates
+    const stacked_ingredients_offset = this.stacked_ingredients.reduce(
+      (offset, stacked_ingredient) => offset + stacked_ingredient.y_offset,
+      0
+    );
+    const burger_y_coords = this.y_movement - stacked_ingredients_offset;
+    // scaling ingredient coordinates to burger coordinates
     const ingredient_to_burger_x_coords =
       ingredient_x_coords * (59 / 44) - 9 / 44;
     const ingredient_to_burger_y_coords =
@@ -219,14 +217,15 @@ export class BurgerTowers extends Scene {
     if (
       Math.abs(burger_x_coords - ingredient_to_burger_x_coords) < 4 &&
       // Math.abs(burger_x_coords - ingredient_to_burger_x_coords) > 1.75 &&
-      Math.abs(burger_y_coords - ingredient_to_burger_y_coords) < 2 &&
-      Math.abs(burger_y_coords - ingredient_to_burger_y_coords) > 1.85
+      Math.abs(burger_y_coords - ingredient_to_burger_y_coords) < 0.8
+      // Math.abs(burger_y_coords - ingredient_to_burger_y_coords) > 1.85
     ) {
       // collision occured
       // storing ingredient as a stacked ingredient
       this.stacked_ingredients.push({
         ingredient: this.falling_ingredients[ingredient_count],
         x_offset: burger_x_coords - ingredient_to_burger_x_coords,
+        y_offset: burger_y_coords - ingredient_to_burger_y_coords,
       });
       this.burger_points += 1;
       // reset ingredient
@@ -290,10 +289,12 @@ export class BurgerTowers extends Scene {
   }
 
   draw_stacked_ingredients(context, program_state, model_transform) {
+    let y_offset_sum = 0;
     for (let i = 0; i < this.stacked_ingredients.length; i++) {
-      const { ingredient, x_offset } = this.stacked_ingredients[i];
+      const { ingredient, x_offset, y_offset } = this.stacked_ingredients[i];
+      y_offset_sum += y_offset;
       const ingredient_x_coords = this.x_movement - x_offset;
-      const ingredient_y_coords = this.y_movement + this.stack_offset * i + 1;
+      const ingredient_y_coords = this.y_movement - y_offset_sum;
       const model_transform_ingredient = model_transform
         .times(Mat4.scale(1.5, 1.8, 1, 0))
         .times(
