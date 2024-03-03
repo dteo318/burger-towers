@@ -51,6 +51,13 @@ export class BurgerTowers extends Scene {
     };
 
     this.materials = {
+      starting_screen_pic: new Material(new defs.Textured_Phong(1), 
+        { ambient: 1, 
+          diffusivity: .9, 
+          specularity: 1, 
+          color: hex_color("#000000"), 
+          texture: new Texture("assets/loading-screen/burgershop2.png")
+      }),
       burger_bottom_bun: new Material(new Textured_Phong(), {
         ambient: 1,
         color: hex_color("#000000"),
@@ -100,6 +107,9 @@ export class BurgerTowers extends Scene {
 
     this.initial_camera_location = Mat4.translation(5, -10, -30);
 
+    // start game button
+    this.startgame = false;
+
     // TODO - add ability to pause the game
     // pause the game
     this.paused = false;
@@ -135,8 +145,9 @@ export class BurgerTowers extends Scene {
 
   make_control_panel() {
     // // Start Game (enter key)
-    // this.key_triggered_button("Start", ['Enter'], () => {
-    //     this.startgame =! this.startgame;
+    this.key_triggered_button("Start", ['Enter'], () => {
+        this.startgame =! this.startgame;
+    }); 
     //     // loop background audio
     //     if (typeof this.background_sound.loop == 'boolean')
     //     {
@@ -151,6 +162,7 @@ export class BurgerTowers extends Scene {
     //     }
     //     this.background_sound.play();
     // });
+
     // ****** User Burger Interactions ****** //
     // Up Movement (arrow key up)
     this.key_triggered_button("Up", ["ArrowUp"], () => {
@@ -344,92 +356,104 @@ export class BurgerTowers extends Scene {
     draw_shadow = false
   ) {
     let t = program_state.animation_time,
-      dt = program_state.animation_delta_time / 1000;
+        dt = program_state.animation_delta_time / 1000;
     let model_transform = Mat4.identity();
-
-    // Draw points count
-    let dash_model = Mat4.identity()
-      .times(Mat4.translation(11.8, 19.4, 4, 0))
-      .times(Mat4.scale(1.3, 1.3, 0.2, 5));
-    let point_string = this.burger_points;
-    this.shapes.text.set_string(point_string.toString(), context.context);
-    this.shapes.square.draw(
-      context,
-      program_state,
-      dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
-      this.materials.burger_dollar
-    );
-    dash_model = dash_model.times(Mat4.translation(1, -0.09, 0));
-    this.shapes.text.draw(
-      context,
-      program_state,
-      dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
-      this.materials.text_image
-    );
-
-    // Draw background
-    const background_transform = model_transform
-      .times(Mat4.scale(60, 60, 60))
-      .times(Mat4.rotation(0, 0, 1, 0))
-      .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
-      .times(Mat4.rotation(t / 40000, 0, 1, 0));
-    this.shapes.sky.draw(
-      context,
-      program_state,
-      background_transform,
-      this.materials.sky
-    );
-    const floor_transform = model_transform
-      .times(Mat4.rotation(0, 0, 1, 0))
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-      .times(Mat4.translation(0, 0, 2))
-      .times(Mat4.scale(50, 25, 0.5));
-    this.shapes.floor.draw(
-      context,
-      program_state,
-      floor_transform,
-      this.materials.floor
-    );
-
-    const ingredient_count = 1;
-    const ingredient_fall_speed = 5;
-    for (let i = 0; i < ingredient_count; i++) {
-      this.draw_falling_ingredient(
+    
+    if (this.startgame){
+      // Draw points count
+      let dash_model = Mat4.identity()
+        .times(Mat4.translation(11.8, 19.4, 4, 0))
+        .times(Mat4.scale(1.3, 1.3, 0.2, 5));
+      let point_string = this.burger_points;
+      this.shapes.text.set_string(point_string.toString(), context.context);
+      this.shapes.square.draw(
         context,
         program_state,
-        model_transform,
-        i,
-        t / 1000,
-        ingredient_fall_speed,
-        shadow_pass
+        dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
+        this.materials.burger_dollar
+      );
+      dash_model = dash_model.times(Mat4.translation(1, -0.09, 0));
+      this.shapes.text.draw(
+        context,
+        program_state,
+        dash_model.times(Mat4.scale(0.5, 0.5, 0.5)),
+        this.materials.text_image
       );
 
-      if (this.paused) {
-        this.detect_ingredient_collision(i, t / 1000, 0);
-      } else {
-        this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
+      // Draw background
+      const background_transform = model_transform
+        .times(Mat4.scale(60, 60, 60))
+        .times(Mat4.rotation(0, 0, 1, 0))
+        .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
+        .times(Mat4.rotation(t / 40000, 0, 1, 0));
+      this.shapes.sky.draw(
+        context,
+        program_state,
+        background_transform,
+        this.materials.sky
+      );
+      const floor_transform = model_transform
+        .times(Mat4.rotation(0, 0, 1, 0))
+        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+        .times(Mat4.translation(0, 0, 2))
+        .times(Mat4.scale(50, 25, 0.5));
+      this.shapes.floor.draw(
+        context,
+        program_state,
+        floor_transform,
+        this.materials.floor
+      );
+
+      const ingredient_count = 1;
+      const ingredient_fall_speed = 5;
+      for (let i = 0; i < ingredient_count; i++) {
+        this.draw_falling_ingredient(
+          context,
+          program_state,
+          model_transform,
+          i,
+          t / 1000,
+          ingredient_fall_speed,
+          shadow_pass
+        );
+
+        if (this.paused) {
+          this.detect_ingredient_collision(i, t / 1000, 0);
+        } else {
+          this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
+        }
       }
+
+      // TODO - draw shadow under burger bun
+      // rendering the player burger bun
+      const x = this.x_movement;
+      const y = this.y_movement;
+      const model_transform_burger = Mat4.identity()
+        .times(Mat4.scale(1.5, 1.8, 1, 0))
+        .times(Mat4.translation(x / 2, y / 2, 0, 0));
+
+      this.shapes.burger_bun.draw(
+        context,
+        program_state,
+        model_transform_burger,
+        this.materials.burger_bottom_bun
+      );
+
+      // rendering ingredients stacked on the burger bun
+      this.draw_stacked_ingredients(context, program_state, model_transform);
+      // rendering ingredients on stove top
+      this.draw_unstacked_ingredients(context, program_state, model_transform);
     }
+    if (!this.startgame) {    
+      // Start game text
+      let start_text_transform = Mat4.identity().times(Mat4.translation(-11.3,13,11,0)).times(Mat4.scale(1.2,1.2,0.2,5));
+      this.shapes.text.set_string("Press Enter to Begin!", context.context);  
+      this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
 
-    // TODO - draw shadow under burger bun
-    // rendering the player burger bun
-    const x = this.x_movement;
-    const y = this.y_movement;
-    const model_transform_burger = Mat4.identity()
-      .times(Mat4.scale(1.5, 1.8, 1, 0))
-      .times(Mat4.translation(x / 2, y / 2, 0, 0));
-
-    this.shapes.burger_bun.draw(
-      context,
-      program_state,
-      model_transform_burger,
-      this.materials.burger_bottom_bun
-    );
-
-    // rendering ingredients stacked on the burger bun
-    this.draw_stacked_ingredients(context, program_state, model_transform);
-    // rendering ingredients on stove top
-    this.draw_unstacked_ingredients(context, program_state, model_transform);
+      // Background image of the burger shop for the starting screen
+      let start_screen_transform = model_transform.times(Mat4.translation(-5,9,9,0)).times(Mat4.scale(16, 10, 1));
+      this.shapes.square.draw(context, program_state, start_screen_transform, this.materials.starting_screen_pic);
+    }
   }
 
   display(context, program_state) {
