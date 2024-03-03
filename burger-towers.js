@@ -451,7 +451,7 @@ export class BurgerTowers extends Scene {
       this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
 
       // Background image of the burger shop for the starting screen
-      let start_screen_transform = model_transform.times(Mat4.translation(-5,9,9,0)).times(Mat4.scale(16, 10, 1));
+      let start_screen_transform = model_transform.times(Mat4.translation(-5,9,9,0)).times(Mat4.scale(16, 11, 1));
       this.shapes.square.draw(context, program_state, start_screen_transform, this.materials.starting_screen_pic);
     }
   }
