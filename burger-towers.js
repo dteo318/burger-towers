@@ -451,9 +451,28 @@ export class BurgerTowers extends Scene {
       // rendering ingredients on stove top
       this.draw_unstacked_ingredients(context, program_state, model_transform);
     }
-    if (!this.startgame) {    
+    if (!this.startgame) {
+      const time = t / 1000;
+      const loading_time_start = 0;
+      const loading_time_end = 6;
+      let start_text_transform = Mat4.identity().times(Mat4.translation(-10,13,11,0)).times(Mat4.scale(1.2,1.2,0.2,5));
+      if (time >= loading_time_start && time <= loading_time_end){
+        if (time < 2){
+          this.shapes.text.set_string("LOADING GAME.", context.context);  
+          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
+        }
+        else if (time < 4){
+          this.shapes.text.set_string("LOADING GAME..", context.context);  
+          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
+        }
+        else if (time < loading_time_end){
+          this.shapes.text.set_string("LOADING GAME...", context.context);  
+          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
+        }
+      }    
+
       // Title
-      let title_transform = Mat4.identity().times(Mat4.translation(-4.5,13,11,0)).times(Mat4.scale(10,5,0.2,5));
+      if (time > loading_time_end) {let title_transform = Mat4.identity().times(Mat4.translation(-4.5,13,11,0)).times(Mat4.scale(10,5,0.2,5));
       this.shapes.square.draw(context, program_state, title_transform, this.materials.title);
 
       // Start game text
@@ -463,7 +482,7 @@ export class BurgerTowers extends Scene {
 
       // Background image of the burger shop for the starting screen
       let start_screen_transform = model_transform.times(Mat4.translation(-5,9,9,0)).times(Mat4.scale(16, 11, 1));
-      this.shapes.square.draw(context, program_state, start_screen_transform, this.materials.starting_screen_pic);
+      this.shapes.square.draw(context, program_state, start_screen_transform, this.materials.starting_screen_pic);}
     }
   }
 
