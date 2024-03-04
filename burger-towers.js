@@ -58,6 +58,13 @@ export class BurgerTowers extends Scene {
           color: hex_color("#000000"), 
           texture: new Texture("assets/loading-screen/burgershop2.png")
       }),
+      title: new Material(new Textured_Phong(),
+      {
+        ambient: 1,
+        diffusivity: 0,
+        specularity: 0,
+        texture: new Texture("assets/loading-screen/title.png")
+      }),
       burger_bottom_bun: new Material(new Textured_Phong(), {
         ambient: 1,
         color: hex_color("#000000"),
@@ -445,6 +452,10 @@ export class BurgerTowers extends Scene {
       this.draw_unstacked_ingredients(context, program_state, model_transform);
     }
     if (!this.startgame) {    
+      // Title
+      let title_transform = Mat4.identity().times(Mat4.translation(-4.5,13,11,0)).times(Mat4.scale(10,5,0.2,5));
+      this.shapes.square.draw(context, program_state, title_transform, this.materials.title);
+
       // Start game text
       let start_text_transform = Mat4.identity().times(Mat4.translation(-11.3,13,11,0)).times(Mat4.scale(1.2,1.2,0.2,5));
       this.shapes.text.set_string("Press Enter to Begin!", context.context);  
