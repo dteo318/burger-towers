@@ -42,12 +42,20 @@ export class BurgerTowers extends Scene {
       lettuce: new Shape_From_File("assets/lettuce/lettuce.obj"),
       cheese: new Shape_From_File("assets/cheese/cheese.obj"),
       burger_patty: new Shape_From_File("assets/burger-patty/burger-patty.obj"),
-      floor: new defs.Capped_Cylinder(50, 50, [
-        [0, 2],
-        [0, 1],
-      ]),
+      // floor: new defs.Capped_Cylinder(50, 50, [
+      //   [0, 2],
+      //   [0, 1],
+      // ]),
+      floor: new Cube(),
       sky: new defs.Subdivision_Sphere(4),
       text: new Text_Line(35),
+      diner: new Cube(),
+      counter: new Cube(),
+      painting1: new Cube(),
+      painting2: new defs.Square(),
+      painting3: new defs.Square(),
+      trash: new Cube(),
+      trash_title: new defs.Square()
     };
 
     this.materials = {
@@ -99,16 +107,52 @@ export class BurgerTowers extends Scene {
       }),
 
       // In game background
-      floor: new Material(new defs.Phong_Shader(), {
-        ambient: 0.3,
-        diffusivity: 0.7,
-        specularity: 1,
-        color: hex_color("#D8DBDE"),
+      floor: new Material(new Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/background/tilefloor.png", "NEAREST")
       }),
       sky: new Material(new defs.Phong_Shader(), {
         ambient: 0.8,
         diffusivity: 0.5,
         color: hex_color("#87CEEB"),
+      }),
+      diner_walls: new Material(new defs.Phong_Shader, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("E2A499")
+      }),
+      counter: new Material(new defs.Phong_Shader, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("B5651D")
+      }),
+      trash: new Material(new defs.Phong_Shader, {
+        ambient: 0,
+        color: hex_color("000000")
+      }),
+      trash_title: new Material(new Textured_Phong, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        texture: new Texture("assets/background/trash_img.png")
+      }),
+      painting: new Material(new Textured_Phong, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("000000"),
+        texture: new Texture("assets/background/burgerpainting1.png")
+      }),
+      painting2: new Material(new Textured_Phong, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("000000"),
+        texture: new Texture("assets/background/burgerpainting2.png")
+      }),
+      painting3: new Material(new Textured_Phong, {
+        ambient: 0.8,
+        diffusivity: 0.5,
+        color: hex_color("000000"),
+        texture: new Texture("assets/background/burgerpainting4.png")
       }),
       burger_dollar: new Material(new Textured_Phong(), {
         ambient: 1,
@@ -370,6 +414,56 @@ export class BurgerTowers extends Scene {
     }
   }
 
+  draw_background_items(context, program_state, model_transform, t) { 
+    let floor_transform = model_transform
+        .times(Mat4.rotation(0, 0, 1, 0))
+        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+        .times(Mat4.translation(-10, -3, 2))
+        .times(Mat4.scale(50, 25, 0.5));
+
+      this.shapes.floor.draw(
+        context,
+        program_state,
+        floor_transform,
+        this.materials.floor
+      );
+
+      // The wall
+      let diner_background_transform = model_transform.times(Mat4.scale(60, 60, 60))
+                                                      .times(Mat4.rotation(0, 0, 1, 0))
+                                                      .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
+                                                      .times(Mat4.rotation(t / 40000, 0, 1, 0));
+      this.shapes.diner.draw(context, program_state, diner_background_transform, this.materials.diner_walls);
+
+      // Counter
+      let counter_transform = model_transform.times(Mat4.translation(-5,0,-17,0))
+                                              .times(Mat4.scale(50,4,4,0));
+      this.shapes.counter.draw(context, program_state, counter_transform, this.materials.counter);
+    
+      // Trash object on the left
+      let trash_transform = model_transform.times(Mat4.translation(-25,0.5,-17,0))
+                                            .times(Mat4.scale(2,4,2,0));
+      this.shapes.trash.draw(context, program_state, trash_transform, this.materials.trash);
+
+      let trash_title_transform = model_transform.times(Mat4.translation(-23.75, 1.25, -12,0))
+                                                  .times(Mat4.scale(1.5,1.5,1,0));
+      this.shapes.trash_title.draw(context, program_state, trash_title_transform, this.materials.trash_title);
+
+      // Paintings in the back on the wall
+      let painting_transform = model_transform.times(Mat4.translation(-5,18,-17,0))
+                                              .times(Mat4.scale(4,4,1,0));
+      this.shapes.painting1.draw(context, program_state, painting_transform, this.materials.painting);
+      
+      let painting2_transform = model_transform.times(Mat4.translation(-25,18,-17,0))
+                                                .times(Mat4.scale(4,4,1,0));
+      this.shapes.painting2.draw(context, program_state, painting2_transform, this.materials.painting2);
+
+      let painting3_transform = model_transform.times(Mat4.translation(15,18,-17,0))
+      .times(Mat4.scale(4,4,1,0));
+      this.shapes.painting3.draw(context, program_state, painting3_transform, this.materials.painting3);
+      
+  }
+
   render_scene(
     context,
     program_state,
@@ -402,30 +496,9 @@ export class BurgerTowers extends Scene {
         this.materials.text_image
       );
 
-      // Draw background
-      const background_transform = model_transform
-        .times(Mat4.scale(60, 60, 60))
-        .times(Mat4.rotation(0, 0, 1, 0))
-        .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
-        .times(Mat4.rotation(t / 40000, 0, 1, 0));
-      this.shapes.sky.draw(
-        context,
-        program_state,
-        background_transform,
-        this.materials.sky
-      );
-      const floor_transform = model_transform
-        .times(Mat4.rotation(0, 0, 1, 0))
-        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-        .times(Mat4.translation(0, 0, 2))
-        .times(Mat4.scale(50, 25, 0.5));
-      this.shapes.floor.draw(
-        context,
-        program_state,
-        floor_transform,
-        this.materials.floor
-      );
-
+      // Draws all the items in the background
+      this.draw_background_items(context, program_state, model_transform, t)
+      
       const ingredient_count = 1;
       const ingredient_fall_speed = 5;
       for (let i = 0; i < ingredient_count; i++) {
