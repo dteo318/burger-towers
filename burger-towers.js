@@ -52,19 +52,18 @@ export class BurgerTowers extends Scene {
 
     this.materials = {
       // For starting screen
-      starting_screen_pic: new Material(new defs.Textured_Phong(1), 
-        { ambient: 1, 
-          diffusivity: .9, 
-          specularity: 1, 
-          color: hex_color("#000000"), 
-          texture: new Texture("assets/loading-screen/burgershop2.png")
+      starting_screen_pic: new Material(new defs.Textured_Phong(1), {
+        ambient: 1,
+        diffusivity: 0.9,
+        specularity: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/loading-screen/burgershop2.png"),
       }),
-      title: new Material(new Textured_Phong(),
-      {
+      title: new Material(new Textured_Phong(), {
         ambient: 1,
         diffusivity: 0,
         specularity: 0,
-        texture: new Texture("assets/loading-screen/title.png")
+        texture: new Texture("assets/loading-screen/title.png"),
       }),
 
       // For in game
@@ -92,10 +91,10 @@ export class BurgerTowers extends Scene {
       }),
       pause_btn: new Material(new defs.Textured_Phong(1), {
         ambient: 1,
-        diffusivity: .9, 
-        specularity: 1, 
-        color: hex_color("#000000"), 
-        texture: new Texture("assets/in-game/pause.png")
+        diffusivity: 0.9,
+        specularity: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/in-game/pause.png"),
       }),
 
       // In game background
@@ -129,10 +128,8 @@ export class BurgerTowers extends Scene {
     // start game button
     this.startgame = false;
 
-    // TODO - add ability to pause the game
     // pause the game
     this.paused = false;
-    this.isFalling = 1;
 
     // burger coordinates
     this.y_movement = 1;
@@ -146,7 +143,7 @@ export class BurgerTowers extends Scene {
     );
     // height to drop ingredients from
     this.y_spawn = 25;
-    this.ingredient_time_offsets = Array(5).fill(0);
+    this.ingredient_y_offsets = Array(5).fill(0);
     // the current ingredient falling from top
     this.falling_ingredients = Array.from(
       { length: 5 },
@@ -165,9 +162,9 @@ export class BurgerTowers extends Scene {
 
   make_control_panel() {
     // // Start Game (enter key)
-    this.key_triggered_button("Start", ['Enter'], () => {
-        this.startgame =! this.startgame;
-    }); 
+    this.key_triggered_button("Start", ["Enter"], () => {
+      this.startgame = !this.startgame;
+    });
     //     // loop background audio
     //     if (typeof this.background_sound.loop == 'boolean')
     //     {
@@ -217,8 +214,8 @@ export class BurgerTowers extends Scene {
     //     this.background_sound.pause();
     // });
     // Pause Game (p key)
-    this.key_triggered_button("Pause", ['p'], () => {
-        this.paused =! this.paused;
+    this.key_triggered_button("Pause", ["p"], () => {
+      this.paused = !this.paused;
     });
   }
 
@@ -226,7 +223,7 @@ export class BurgerTowers extends Scene {
     this.x_spawn[ingredient_count] = Math.floor(
       Math.cos(Math.random() * Math.PI) * 15
     );
-    this.ingredient_time_offsets[ingredient_count] = t;
+    this.ingredient_y_offsets[ingredient_count] = 0;
     this.falling_ingredients[ingredient_count] =
       this.ingredients[Math.floor(Math.random() * this.ingredients.length)];
   }
@@ -236,8 +233,7 @@ export class BurgerTowers extends Scene {
     // ingredient coordinates
     const ingredient_x_coords = this.x_spawn[ingredient_count];
     const ingredient_y_coords =
-      this.y_spawn +
-      (this.ingredient_time_offsets[ingredient_count] - t) * speed;
+      this.y_spawn + this.ingredient_y_offsets[ingredient_count];
     // burger coordinates
     const burger_x_coords = this.x_movement;
     // y offset for stacked ingredients contact
@@ -288,31 +284,30 @@ export class BurgerTowers extends Scene {
     const x_coord = this.x_spawn[ingredient_count];
     const y_coord = this.y_spawn;
     const dt = program_state.animation_delta_time / 1000;
-    this.ingredient_time_offsets[ingredient_count] -= !this.paused * dt * speed;
-    const y_offset = this.ingredient_time_offsets[ingredient_count]
-     
+    this.ingredient_y_offsets[ingredient_count] -= !this.paused * dt * speed;
+    const y_offset = this.ingredient_y_offsets[ingredient_count];
 
-      /* Checks if current x-coord is offscreen, if its not ingredients just drop */
+    /* Checks if current x-coord is offscreen, if its not ingredients just drop */
     if (y_coord + y_offset > -1) {
-        const model_transform_ingredient = model_transform
-          .times(Mat4.translation(x_coord, y_coord, 0, 0))
-          .times(Mat4.translation(0, y_offset, 0, 0))
-          .times(Mat4.scale(1.5, 1.8, 1, 0));
+      const model_transform_ingredient = model_transform
+        .times(Mat4.translation(x_coord, y_coord, 0, 0))
+        .times(Mat4.translation(0, y_offset, 0, 0))
+        .times(Mat4.scale(1.5, 1.8, 1, 0));
 
-        // this.shapes[ingredient].draw(
-        //   context,
-        //   program_state,
-        //   model_transform_ingredient,
-        //   shadow_pass
-        //     ? this.materials.guppies.override({ color: fish_color })
-        //     : this.pure
-        // );
-        this.shapes[ingredient].draw(
-          context,
-          program_state,
-          model_transform_ingredient,
-          this.materials[ingredient]
-        );
+      // this.shapes[ingredient].draw(
+      //   context,
+      //   program_state,
+      //   model_transform_ingredient,
+      //   shadow_pass
+      //     ? this.materials.guppies.override({ color: fish_color })
+      //     : this.pure
+      // );
+      this.shapes[ingredient].draw(
+        context,
+        program_state,
+        model_transform_ingredient,
+        this.materials[ingredient]
+      );
       /* If ingredient is off screen, we update its time offset since we use time to translate in above bracket
            Also updated coordinates so it looks more random
         */
@@ -378,10 +373,10 @@ export class BurgerTowers extends Scene {
     draw_shadow = false
   ) {
     let t = program_state.animation_time,
-        dt = program_state.animation_delta_time / 1000;
+      dt = program_state.animation_delta_time / 1000;
     let model_transform = Mat4.identity();
-    
-    if (this.startgame){
+
+    if (this.startgame) {
       // Draw points count
       let dash_model = Mat4.identity()
         .times(Mat4.translation(11.8, 19.4, 4, 0))
@@ -429,25 +424,30 @@ export class BurgerTowers extends Scene {
       const ingredient_count = 1;
       const ingredient_fall_speed = 5;
       for (let i = 0; i < ingredient_count; i++) {
-          this.draw_falling_ingredient(
-            context,
-            program_state,
-            model_transform,
-            i,
-            t / 1000,
-            ingredient_fall_speed,
-            shadow_pass
-          );
-
+        this.draw_falling_ingredient(
+          context,
+          program_state,
+          model_transform,
+          i,
+          t / 1000,
+          ingredient_fall_speed,
+          shadow_pass
+        );
 
         if (this.paused) {
           this.detect_ingredient_collision(i, t / 1000, 0);
 
-          let pause_btn_transform = model_transform.times(Mat4.translation(-5,10,11,0)).times(Mat4.scale(4,4,0.2,5));
-          this.shapes.square.draw(context, program_state, pause_btn_transform, this.materials.pause_btn);
-
+          let pause_btn_transform = model_transform
+            .times(Mat4.translation(-5, 10, 11, 0))
+            .times(Mat4.scale(4, 4, 0.2, 5));
+          this.shapes.square.draw(
+            context,
+            program_state,
+            pause_btn_transform,
+            this.materials.pause_btn
+          );
         } else {
-          this.detect_ingredient_collision(i, t/ 1000, ingredient_fall_speed);
+          this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
         }
       }
 
@@ -475,35 +475,71 @@ export class BurgerTowers extends Scene {
       const time = t / 1000;
       const loading_time_start = 0;
       const loading_time_end = 6;
-      let start_text_transform = Mat4.identity().times(Mat4.translation(-10,13,11,0)).times(Mat4.scale(1.2,1.2,0.2,5));
-      if (time >= loading_time_start && time <= loading_time_end){
-        if (time < 2){
-          this.shapes.text.set_string("LOADING GAME.", context.context);  
-          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
+      let start_text_transform = Mat4.identity()
+        .times(Mat4.translation(-10, 13, 11, 0))
+        .times(Mat4.scale(1.2, 1.2, 0.2, 5));
+      if (time >= loading_time_start && time <= loading_time_end) {
+        if (time < 2) {
+          this.shapes.text.set_string("LOADING GAME.", context.context);
+          this.shapes.text.draw(
+            context,
+            program_state,
+            start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
+            this.materials.text_image
+          );
+        } else if (time < 4) {
+          this.shapes.text.set_string("LOADING GAME..", context.context);
+          this.shapes.text.draw(
+            context,
+            program_state,
+            start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
+            this.materials.text_image
+          );
+        } else if (time < loading_time_end) {
+          this.shapes.text.set_string("LOADING GAME...", context.context);
+          this.shapes.text.draw(
+            context,
+            program_state,
+            start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
+            this.materials.text_image
+          );
         }
-        else if (time < 4){
-          this.shapes.text.set_string("LOADING GAME..", context.context);  
-          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
-        }
-        else if (time < loading_time_end){
-          this.shapes.text.set_string("LOADING GAME...", context.context);  
-          this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
-        }
-      }    
+      }
 
       if (time > loading_time_end) {
         // Title
-        let title_transform = Mat4.identity().times(Mat4.translation(-4.5,13,11,0)).times(Mat4.scale(10,5,0.2,5));
-        this.shapes.square.draw(context, program_state, title_transform, this.materials.title);
+        let title_transform = Mat4.identity()
+          .times(Mat4.translation(-4.5, 13, 11, 0))
+          .times(Mat4.scale(10, 5, 0.2, 5));
+        this.shapes.square.draw(
+          context,
+          program_state,
+          title_transform,
+          this.materials.title
+        );
 
         // Start game text
-        let start_text_transform = Mat4.identity().times(Mat4.translation(-11.3,13,11,0)).times(Mat4.scale(1.2,1.2,0.2,5));
-        this.shapes.text.set_string("Press Enter to Begin!", context.context);  
-        this.shapes.text.draw(context, program_state, start_text_transform.times(Mat4.scale(.35, .35, .50)), this.materials.text_image);
+        let start_text_transform = Mat4.identity()
+          .times(Mat4.translation(-11.3, 13, 11, 0))
+          .times(Mat4.scale(1.2, 1.2, 0.2, 5));
+        this.shapes.text.set_string("Press Enter to Begin!", context.context);
+        this.shapes.text.draw(
+          context,
+          program_state,
+          start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
+          this.materials.text_image
+        );
 
         // Background image of the burger shop for the starting screen
-        let start_screen_transform = model_transform.times(Mat4.translation(-5,9,9,0)).times(Mat4.scale(16, 11, 1));
-        this.shapes.square.draw(context, program_state, start_screen_transform, this.materials.starting_screen_pic);
+        let start_screen_transform = model_transform
+          .times(Mat4.translation(-5, 9, 9, 0))
+          .times(Mat4.scale(16, 11, 1));
+        this.shapes.square.draw(
+          context,
+          program_state,
+          start_screen_transform,
+          this.materials.starting_screen_pic
+        );
       }
     }
   }
