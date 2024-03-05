@@ -116,7 +116,7 @@ export class BurgerTowers extends Scene {
     );
     // height to drop ingredients from
     this.y_spawn = 25;
-    this.ingredient_time_offsets = Array(5).fill(0);
+    this.ingredient_y_offset = Array(5).fill(0);
     // the current ingredient falling from top
     this.falling_ingredients = Array.from(
       { length: 5 },
@@ -184,17 +184,17 @@ export class BurgerTowers extends Scene {
     //     // loop background audio
     //     this.background_sound.pause();
     // });
-    // // Pause Game (p key)
-    // this.key_triggered_button("Pause", ['p'], () => {
-    //     this.paused =! this.paused;
-    // });
+    // Pause Game (p key)
+    this.key_triggered_button("Pause", ["p"], () => {
+      this.paused = !this.paused;
+    });
   }
 
   new_ingredient_coords(ingredient_count, t) {
     this.x_spawn[ingredient_count] = Math.floor(
       Math.cos(Math.random() * Math.PI) * 15
     );
-    this.ingredient_time_offsets[ingredient_count] = t;
+    this.ingredient_y_offset[ingredient_count] = 0;
     this.falling_ingredients[ingredient_count] =
       this.ingredients[Math.floor(Math.random() * this.ingredients.length)];
   }
@@ -204,8 +204,7 @@ export class BurgerTowers extends Scene {
     // ingredient coordinates
     const ingredient_x_coords = this.x_spawn[ingredient_count];
     const ingredient_y_coords =
-      this.y_spawn +
-      (this.ingredient_time_offsets[ingredient_count] - t) * speed;
+      this.y_spawn + this.ingredient_y_offset[ingredient_count];
     // burger coordinates
     const burger_x_coords = this.x_movement;
     // y offset for stacked ingredients contact
@@ -255,8 +254,10 @@ export class BurgerTowers extends Scene {
     const ingredient = this.falling_ingredients[ingredient_count];
     const x_coord = this.x_spawn[ingredient_count];
     const y_coord = this.y_spawn;
-    const y_offset =
-      (this.ingredient_time_offsets[ingredient_count] - t) * speed;
+    const dt = program_state.animation_delta_time / 1000;
+    // Updating offset
+    this.ingredient_y_offset[ingredient_count] -= dt * !this.paused * speed;
+    const y_offset = this.ingredient_y_offset[ingredient_count];
 
     /* Checks if current x-coord is offscreen, if its not ingredients just drop */
     if (y_coord + y_offset > -1) {
