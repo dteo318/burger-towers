@@ -55,7 +55,7 @@ export class BurgerTowers extends Scene {
       painting2: new defs.Square(),
       painting3: new defs.Square(),
       trash: new Cube(),
-      trash_title: new defs.Square()
+      trash_title: new defs.Square(),
     };
 
     this.materials = {
@@ -109,49 +109,49 @@ export class BurgerTowers extends Scene {
       floor: new Material(new Textured_Phong(), {
         ambient: 1,
         color: hex_color("#000000"),
-        texture: new Texture("assets/background/tilefloor.png", "NEAREST")
+        texture: new Texture("assets/background/tilefloor.png", "NEAREST"),
       }),
       sky: new Material(new defs.Phong_Shader(), {
         ambient: 0.8,
         diffusivity: 0.5,
         color: hex_color("#87CEEB"),
       }),
-      diner_walls: new Material(new defs.Phong_Shader, {
+      diner_walls: new Material(new defs.Phong_Shader(), {
         ambient: 0.8,
         diffusivity: 0.5,
-        color: hex_color("E2A499")
+        color: hex_color("E2A499"),
       }),
-      counter: new Material(new defs.Phong_Shader, {
+      counter: new Material(new defs.Phong_Shader(), {
         ambient: 0.8,
         diffusivity: 0.5,
-        color: hex_color("B5651D")
+        color: hex_color("B5651D"),
       }),
-      trash: new Material(new defs.Phong_Shader, {
+      trash: new Material(new defs.Phong_Shader(), {
         ambient: 0,
-        color: hex_color("000000")
+        color: hex_color("000000"),
       }),
-      trash_title: new Material(new Textured_Phong, {
+      trash_title: new Material(new Textured_Phong(), {
         ambient: 0.8,
         diffusivity: 0.5,
-        texture: new Texture("assets/background/trash_img.png")
+        texture: new Texture("assets/background/trash_img.png"),
       }),
-      painting: new Material(new Textured_Phong, {
+      painting: new Material(new Textured_Phong(), {
         ambient: 0.8,
         diffusivity: 0.5,
         color: hex_color("000000"),
-        texture: new Texture("assets/background/burgerpainting1.png")
+        texture: new Texture("assets/background/burgerpainting1.png"),
       }),
-      painting2: new Material(new Textured_Phong, {
+      painting2: new Material(new Textured_Phong(), {
         ambient: 0.8,
         diffusivity: 0.5,
         color: hex_color("000000"),
-        texture: new Texture("assets/background/burgerpainting2.png")
+        texture: new Texture("assets/background/burgerpainting2.png"),
       }),
-      painting3: new Material(new Textured_Phong, {
+      painting3: new Material(new Textured_Phong(), {
         ambient: 0.8,
         diffusivity: 0.5,
         color: hex_color("000000"),
-        texture: new Texture("assets/background/burgerpainting4.png")
+        texture: new Texture("assets/background/burgerpainting4.png"),
       }),
       burger_dollar: new Material(new Textured_Phong(), {
         ambient: 1,
@@ -272,7 +272,6 @@ export class BurgerTowers extends Scene {
       this.ingredients[Math.floor(Math.random() * this.ingredients.length)];
   }
 
-  // TODO - smoothen collision detection
   detect_ingredient_collision(ingredient_count, t, speed) {
     // ingredient coordinates
     const ingredient_x_coords = this.x_spawn[ingredient_count];
@@ -287,15 +286,13 @@ export class BurgerTowers extends Scene {
     );
     const burger_y_coords = this.y_movement - stacked_ingredients_offset;
     // scaling ingredient coordinates to burger coordinates
-    const ingredient_to_burger_x_coords =
-      ingredient_x_coords * (59 / 44) - 9 / 44;
-    const ingredient_to_burger_y_coords =
-      ingredient_y_coords * (37 / 17) - 19 / 17;
+    const ingredient_to_burger_x_coords = ingredient_x_coords * (59 / 44);
+    const ingredient_to_burger_y_coords = ingredient_y_coords * (12 / 11);
 
     if (
-      Math.abs(burger_x_coords - ingredient_to_burger_x_coords) < 4 &&
+      Math.abs(burger_x_coords - ingredient_to_burger_x_coords) < 3 &&
       // Math.abs(burger_x_coords - ingredient_to_burger_x_coords) > 1.75 &&
-      Math.abs(burger_y_coords - ingredient_to_burger_y_coords) < 0.8
+      Math.abs(burger_y_coords - ingredient_to_burger_y_coords) < 0.75
       // Math.abs(burger_y_coords - ingredient_to_burger_y_coords) > 1.85
     ) {
       // collision occured
@@ -321,9 +318,6 @@ export class BurgerTowers extends Scene {
     speed,
     shadow_pass
   ) {
-    // let fish_color = this.fish_color_array[fish_count];
-    // var x_cord = this.x_spawn_left[fish_count];
-    // var y_cord = this.y_spawn_left[fish_count];
     const ingredient = this.falling_ingredients[ingredient_count];
     const x_coord = this.x_spawn[ingredient_count];
     const y_coord = this.y_spawn;
@@ -334,8 +328,7 @@ export class BurgerTowers extends Scene {
     /* Checks if current x-coord is offscreen, if its not ingredients just drop */
     if (y_coord + y_offset > -1) {
       const model_transform_ingredient = model_transform
-        .times(Mat4.translation(x_coord, y_coord, 0, 0))
-        .times(Mat4.translation(0, y_offset, 0, 0))
+        .times(Mat4.translation(x_coord, y_coord + y_offset, 0, 0))
         .times(Mat4.scale(1.5, 1.8, 1, 0));
 
       // this.shapes[ingredient].draw(
@@ -377,8 +370,8 @@ export class BurgerTowers extends Scene {
         .times(Mat4.scale(1.5, 1.8, 1, 0))
         .times(
           Mat4.translation(
-            ingredient_x_coords / 2,
-            ingredient_y_coords / 2,
+            ingredient_x_coords / 2.0,
+            ingredient_y_coords / 2.0,
             0,
             0
           )
@@ -409,54 +402,95 @@ export class BurgerTowers extends Scene {
     }
   }
 
-  draw_background_items(context, program_state, model_transform, t) { 
+  draw_background_items(context, program_state, model_transform, t) {
     let floor_transform = model_transform
-        .times(Mat4.rotation(0, 0, 1, 0))
-        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-        .times(Mat4.translation(-10, -3, 2))
-        .times(Mat4.scale(50, 25, 0.5));
+      .times(Mat4.rotation(0, 0, 1, 0))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(-10, -3, 2))
+      .times(Mat4.scale(50, 25, 0.5));
 
-      this.shapes.floor.draw(
-        context,
-        program_state,
-        floor_transform,
-        this.materials.floor
-      );
+    this.shapes.floor.draw(
+      context,
+      program_state,
+      floor_transform,
+      this.materials.floor
+    );
 
-      // The wall
-      let diner_background_transform = model_transform.times(Mat4.scale(60, 60, 60))
-                                                      .times(Mat4.rotation(0, 0, 1, 0))
-                                                      .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
-                                                      .times(Mat4.rotation(t / 40000, 0, 1, 0));
-      this.shapes.diner.draw(context, program_state, diner_background_transform, this.materials.diner_walls);
+    // The wall
+    let diner_background_transform = model_transform
+      .times(Mat4.scale(60, 60, 60))
+      .times(Mat4.rotation(0, 0, 1, 0))
+      .times(Mat4.rotation(Math.PI / 1.8, 1, 0, 0))
+      .times(Mat4.rotation(t / 40000, 0, 1, 0));
+    this.shapes.diner.draw(
+      context,
+      program_state,
+      diner_background_transform,
+      this.materials.diner_walls
+    );
 
-      // Counter
-      let counter_transform = model_transform.times(Mat4.translation(-5,0,-17,0))
-                                              .times(Mat4.scale(50,4,4,0));
-      this.shapes.counter.draw(context, program_state, counter_transform, this.materials.counter);
-    
-      // Trash object on the left
-      let trash_transform = model_transform.times(Mat4.translation(-25,0.5,-17,0))
-                                            .times(Mat4.scale(2,4,2,0));
-      this.shapes.trash.draw(context, program_state, trash_transform, this.materials.trash);
+    // Counter
+    let counter_transform = model_transform
+      .times(Mat4.translation(-5, 0, -17, 0))
+      .times(Mat4.scale(50, 4, 4, 0));
+    this.shapes.counter.draw(
+      context,
+      program_state,
+      counter_transform,
+      this.materials.counter
+    );
 
-      let trash_title_transform = model_transform.times(Mat4.translation(-23.75, 1.25, -12,0))
-                                                  .times(Mat4.scale(1.5,1.5,1,0));
-      this.shapes.trash_title.draw(context, program_state, trash_title_transform, this.materials.trash_title);
+    // Trash object on the left
+    let trash_transform = model_transform
+      .times(Mat4.translation(-25, 0.5, -17, 0))
+      .times(Mat4.scale(2, 4, 2, 0));
+    this.shapes.trash.draw(
+      context,
+      program_state,
+      trash_transform,
+      this.materials.trash
+    );
 
-      // Paintings in the back on the wall
-      let painting_transform = model_transform.times(Mat4.translation(-5,18,-17,0))
-                                              .times(Mat4.scale(4,4,1,0));
-      this.shapes.painting1.draw(context, program_state, painting_transform, this.materials.painting);
-      
-      let painting2_transform = model_transform.times(Mat4.translation(-25,18,-17,0))
-                                                .times(Mat4.scale(4,4,1,0));
-      this.shapes.painting2.draw(context, program_state, painting2_transform, this.materials.painting2);
+    let trash_title_transform = model_transform
+      .times(Mat4.translation(-23.75, 1.25, -12, 0))
+      .times(Mat4.scale(1.5, 1.5, 1, 0));
+    this.shapes.trash_title.draw(
+      context,
+      program_state,
+      trash_title_transform,
+      this.materials.trash_title
+    );
 
-      let painting3_transform = model_transform.times(Mat4.translation(15,18,-17,0))
-      .times(Mat4.scale(4,4,1,0));
-      this.shapes.painting3.draw(context, program_state, painting3_transform, this.materials.painting3);
-      
+    // Paintings in the back on the wall
+    let painting_transform = model_transform
+      .times(Mat4.translation(-5, 18, -17, 0))
+      .times(Mat4.scale(4, 4, 1, 0));
+    this.shapes.painting1.draw(
+      context,
+      program_state,
+      painting_transform,
+      this.materials.painting
+    );
+
+    let painting2_transform = model_transform
+      .times(Mat4.translation(-25, 18, -17, 0))
+      .times(Mat4.scale(4, 4, 1, 0));
+    this.shapes.painting2.draw(
+      context,
+      program_state,
+      painting2_transform,
+      this.materials.painting2
+    );
+
+    let painting3_transform = model_transform
+      .times(Mat4.translation(15, 18, -17, 0))
+      .times(Mat4.scale(4, 4, 1, 0));
+    this.shapes.painting3.draw(
+      context,
+      program_state,
+      painting3_transform,
+      this.materials.painting3
+    );
   }
 
   render_scene(
@@ -492,8 +526,20 @@ export class BurgerTowers extends Scene {
       );
 
       // Draws all the items in the background
-      this.draw_background_items(context, program_state, model_transform, t)
-      
+      this.draw_background_items(context, program_state, model_transform, t);
+
+      if (this.paused) {
+        let pause_btn_transform = model_transform
+          .times(Mat4.translation(-5, 10, 11, 0))
+          .times(Mat4.scale(4, 4, 0.2, 5));
+        this.shapes.square.draw(
+          context,
+          program_state,
+          pause_btn_transform,
+          this.materials.pause_btn
+        );
+      }
+
       const ingredient_count = 1;
       const ingredient_fall_speed = 5;
       for (let i = 0; i < ingredient_count; i++) {
@@ -506,23 +552,13 @@ export class BurgerTowers extends Scene {
           ingredient_fall_speed,
           shadow_pass
         );
-
-        if (this.paused) {
-          this.detect_ingredient_collision(i, t / 1000, 0);
-
-          let pause_btn_transform = model_transform
-            .times(Mat4.translation(-5, 10, 11, 0))
-            .times(Mat4.scale(4, 4, 0.2, 5));
-          this.shapes.square.draw(
-            context,
-            program_state,
-            pause_btn_transform,
-            this.materials.pause_btn
-          );
-        } else {
-          this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
-        }
+        this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
       }
+
+      // rendering ingredients stacked on the burger bun
+      this.draw_stacked_ingredients(context, program_state, model_transform);
+      // rendering ingredients on stove top
+      this.draw_unstacked_ingredients(context, program_state, model_transform);
 
       // TODO - draw shadow under burger bun
       // rendering the player burger bun
@@ -538,11 +574,6 @@ export class BurgerTowers extends Scene {
         model_transform_burger,
         this.materials.burger_bottom_bun
       );
-
-      // rendering ingredients stacked on the burger bun
-      this.draw_stacked_ingredients(context, program_state, model_transform);
-      // rendering ingredients on stove top
-      this.draw_unstacked_ingredients(context, program_state, model_transform);
     }
     if (!this.startgame) {
       const time = t / 1000;
