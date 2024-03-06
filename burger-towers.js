@@ -202,12 +202,15 @@ export class BurgerTowers extends Scene {
       () =>
         this.ingredients[Math.floor(Math.random() * this.ingredients.length)]
     );
+    this.falling_speed = Array.from(
+      { length: 5 },
+      () => Math.floor(Math.random() * 5) + 1
+    );
 
     // ingredients that are currently stacked
     this.stacked_ingredients = [];
     // ingredients unstacked
     this.unstacked_ingredients = [];
-    // TODO - expand on game scoring
     // point counting for game
     this.burger_points = 0;
   }
@@ -337,16 +340,17 @@ export class BurgerTowers extends Scene {
     });
   }
 
-  new_ingredient_coords(ingredient_count, t) {
+  new_ingredient(ingredient_count, t) {
     this.x_spawn[ingredient_count] = Math.floor(
       Math.cos(Math.random() * Math.PI) * 15
     );
     this.ingredient_y_offsets[ingredient_count] = 0;
     this.falling_ingredients[ingredient_count] =
       this.ingredients[Math.floor(Math.random() * this.ingredients.length)];
+    this.falling_speed[ingredient_count] = Math.floor(Math.random() * 5) + 1;
   }
 
-  detect_ingredient_collision(ingredient_count, t, speed) {
+  detect_ingredient_collision(ingredient_count, t) {
     // ingredient coordinates
     const ingredient_x_coords = this.x_spawn[ingredient_count];
     const ingredient_y_coords =
@@ -376,27 +380,26 @@ export class BurgerTowers extends Scene {
         x_offset: burger_x_coords - ingredient_to_burger_x_coords,
         y_offset: burger_y_coords - ingredient_to_burger_y_coords,
       });
-      this.burger_points += 1;
+      this.burger_points += this.falling_speed[ingredient_count];
       // reset ingredient
-      this.new_ingredient_coords(ingredient_count, t);
+      this.new_ingredient(ingredient_count, t);
     }
   }
 
-  // TODO - draw shadow under falling ingredients
   draw_falling_ingredient(
     context,
     program_state,
     model_transform,
     ingredient_count,
     t,
-    speed,
     shadow_pass
   ) {
     const ingredient = this.falling_ingredients[ingredient_count];
     const x_coord = this.x_spawn[ingredient_count];
     const y_coord = this.y_spawn;
     const dt = program_state.animation_delta_time / 1000;
-    this.ingredient_y_offsets[ingredient_count] -= !this.paused * dt * speed;
+    this.ingredient_y_offsets[ingredient_count] -=
+      !this.paused * dt * this.falling_speed[ingredient_count];
     const y_offset = this.ingredient_y_offsets[ingredient_count];
 
     /* Checks if current x-coord is offscreen, if its not ingredients just drop */
@@ -429,7 +432,7 @@ export class BurgerTowers extends Scene {
         x_coords: x_coord,
         y_coords: y_coord + y_offset,
       });
-      this.new_ingredient_coords(ingredient_count, t);
+      this.new_ingredient(ingredient_count, t);
     }
   }
 
@@ -616,7 +619,6 @@ export class BurgerTowers extends Scene {
       }
 
       const ingredient_count = 1;
-      const ingredient_fall_speed = 5;
       for (let i = 0; i < ingredient_count; i++) {
         this.draw_falling_ingredient(
           context,
@@ -624,10 +626,9 @@ export class BurgerTowers extends Scene {
           model_transform,
           i,
           t / 1000,
-          ingredient_fall_speed,
           shadow_pass
         );
-        this.detect_ingredient_collision(i, t / 1000, ingredient_fall_speed);
+        this.detect_ingredient_collision(i, t / 1000);
       }
 
       // rendering ingredients stacked on the burger bun
@@ -640,7 +641,6 @@ export class BurgerTowers extends Scene {
       // rendering ingredients on stove top
       this.draw_unstacked_ingredients(context, program_state, model_transform);
 
-      // TODO - draw shadow under burger bun
       // rendering the player burger bun
       const x = this.x_movement;
       const y = this.y_movement;
