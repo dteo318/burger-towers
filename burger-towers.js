@@ -576,6 +576,86 @@ export class BurgerTowers extends Scene {
     );
   }
 
+  starting_screen(context, program_state, model_transform) {
+    // Title
+    let title_transform = Mat4.identity()
+      .times(Mat4.translation(-4.5, 13, 11, 0))
+      .times(Mat4.scale(10, 5, 0.2, 5));
+    this.shapes.square.draw(
+      context,
+      program_state,
+      title_transform,
+      this.materials.title
+    );
+
+    // Start game text
+    let start_text_transform = Mat4.identity()
+      .times(Mat4.translation(-11.3, 13, 11, 0))
+      .times(Mat4.scale(1.2, 1.2, 0.2, 5));
+    this.shapes.text.set_string("Press Enter to Begin!", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
+      this.materials.text_image
+    );
+
+    // Game rules
+    let game_rules_transform = Mat4.identity()
+      .times(Mat4.translation(-18, 11.5, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("There are 5 speed rates.", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      game_rules_transform.times(Mat4.scale(0.25, 0.25, 0.5)),
+      this.materials.text_image
+    );
+    let game_rules2_transform = Mat4.identity()
+      .times(Mat4.translation(-18, 11, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("Catch to earn points based on speed.", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      game_rules2_transform.times(Mat4.scale(0.25, 0.25, 0.5)),
+      this.materials.text_image
+    );
+    let game_rules3_transform = Mat4.identity()
+      .times(Mat4.translation(-18, 10.5, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("Lose points if you miss.", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      game_rules3_transform.times(Mat4.scale(0.25, 0.25, 0.5)),
+      this.materials.text_image
+    );
+
+    // Instructions
+    let instructions_transform = Mat4.identity()
+      .times(Mat4.translation(2, 11, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("Use arrow keys to move!", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      instructions_transform.times(Mat4.scale(0.25, 0.25, 0.5)),
+      this.materials.text_image
+    );
+
+    // Background image of the burger shop for the starting screen
+    let start_screen_transform = model_transform
+      .times(Mat4.translation(-5, 9, 9, 0))
+      .times(Mat4.scale(16, 11, 1));
+    this.shapes.square.draw(
+      context,
+      program_state,
+      start_screen_transform,
+      this.materials.starting_screen_pic
+    );
+  }
+
   render_scene(context, program_state, shadow_pass, draw_shadow = false) {
     let t = program_state.animation_time,
       dt = program_state.animation_delta_time / 1000;
@@ -691,39 +771,7 @@ export class BurgerTowers extends Scene {
       }
 
       if (time > loading_time_end) {
-        // Title
-        let title_transform = Mat4.identity()
-          .times(Mat4.translation(-4.5, 13, 11, 0))
-          .times(Mat4.scale(10, 5, 0.2, 5));
-        this.shapes.square.draw(
-          context,
-          program_state,
-          title_transform,
-          this.materials.title
-        );
-
-        // Start game text
-        let start_text_transform = Mat4.identity()
-          .times(Mat4.translation(-11.3, 13, 11, 0))
-          .times(Mat4.scale(1.2, 1.2, 0.2, 5));
-        this.shapes.text.set_string("Press Enter to Begin!", context.context);
-        this.shapes.text.draw(
-          context,
-          program_state,
-          start_text_transform.times(Mat4.scale(0.35, 0.35, 0.5)),
-          this.materials.text_image
-        );
-
-        // Background image of the burger shop for the starting screen
-        let start_screen_transform = model_transform
-          .times(Mat4.translation(-5, 9, 9, 0))
-          .times(Mat4.scale(16, 11, 1));
-        this.shapes.square.draw(
-          context,
-          program_state,
-          start_screen_transform,
-          this.materials.starting_screen_pic
-        );
+        this.starting_screen(context, program_state, model_transform);
       }
     }
   }
