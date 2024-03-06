@@ -431,7 +431,8 @@ export class BurgerTowers extends Scene {
         ingredient: this.falling_ingredients[ingredient_count],
         x_coords: x_coord,
         y_coords: y_coord + y_offset,
-      });
+      });  
+      this.burger_points = Math.max(this.burger_points - (6 - this.falling_speed[ingredient_count]), 0);
       this.new_ingredient(ingredient_count, t);
     }
   }
