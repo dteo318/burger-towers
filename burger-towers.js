@@ -60,6 +60,7 @@ export class BurgerTowers extends Scene {
       painting3: new defs.Square(),
       trash: new Cube(),
       trash_title: new defs.Square(),
+      cash_in: new defs.Square()
     };
 
     this.materials = {
@@ -183,9 +184,17 @@ export class BurgerTowers extends Scene {
     // pause the game
     this.paused = false;
 
+    // life points
+    this.initialLives = 5
+    this.lives = this.initialLives;
+
     // burger coordinates
     this.y_movement = 1;
     this.x_movement = -7;
+
+    // mouse coordinates
+    this.mousex
+    this.mousey
 
     // ingredients to choose from
     this.ingredients = ["lettuce", "cheese", "burger_patty"];
@@ -285,6 +294,10 @@ export class BurgerTowers extends Scene {
     // // Start Game (enter key)
     this.key_triggered_button("Start", ["Enter"], () => {
       this.startgame = !this.startgame;
+      this.lives = this.initialLives;
+      this.burger_points = 0;
+      this.stacked_ingredients = [];
+      this.unstacked_ingredients = [];
     });
     //     // loop background audio
     //     if (typeof this.background_sound.loop == 'boolean')
@@ -431,8 +444,9 @@ export class BurgerTowers extends Scene {
         ingredient: this.falling_ingredients[ingredient_count],
         x_coords: x_coord,
         y_coords: y_coord + y_offset,
-      });  
+      });
       this.burger_points = Math.max(this.burger_points - (6 - this.falling_speed[ingredient_count]), 0);
+      this.lives -= 1;
       this.new_ingredient(ingredient_count, t);
     }
   }
@@ -486,6 +500,31 @@ export class BurgerTowers extends Scene {
   }
 
   draw_background_items(context, program_state, model_transform, t) {
+    // Lives text
+    let lives_transform = Mat4.identity()
+      .times(Mat4.translation(-18, 17, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("Lives: ", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      lives_transform.times(Mat4.scale(0.4, 0.4, 0.5)),
+      this.materials.text_image
+    );
+
+    // Number of lives text
+    let lives_num_transform = Mat4.identity()
+      .times(Mat4.translation(-15, 17, 11, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    let num_text = this.lives.toString();
+    this.shapes.text.set_string(num_text, context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      lives_num_transform.times(Mat4.scale(0.4, 0.4, 0.5)),
+      this.materials.text_image
+    );
+
     let floor_transform = model_transform
       .times(Mat4.rotation(0, 0, 1, 0))
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
@@ -656,12 +695,42 @@ export class BurgerTowers extends Scene {
     );
   }
 
+  cashing_in(context, program_state, model_transform){
+    // Cash in text
+    let cash_in_text_transform = model_transform
+      .times(Mat4.translation(-6.5, 19, 5, 0))
+      .times(Mat4.scale(0.8, 0.8, 0.2, 5));
+    this.shapes.text.set_string("CASH IN", context.context);
+    this.shapes.text.draw(
+      context,
+      program_state,
+      cash_in_text_transform.times(Mat4.scale(0.4, 0.4, 0.5)),
+      this.materials.text_image
+    );
+
+    // Cash in button
+    let cash_in_transform = model_transform.times(Mat4.translation(-5, 21, 0, 0))
+                                                    .times(Mat4.scale(2.6, 1, 0.2, 5));
+    this.shapes.cash_in.draw(context, program_state, cash_in_transform, this.materials.plain)
+
+    let buttonx = ((cash_in_transform[0][3]) - (-5)) / 22;
+    let buttony = (cash_in_transform[1][3] - (10)) / 12;
+
+    if ((this.mousex < buttonx + 0.1 && this.mousex > buttonx - 0.1) && (this.mousey < buttony + 0.1 && this.mousey > buttony - 0.1) && this.stacked_ingredients.length >= 5) {
+        this.lives += 1;
+        this.burger_points -= 10;
+        this.stacked_ingredients.splice(this.stacked_ingredients.length - 5, 5);
+        this.mousex = null;
+        this.mousey = null;
+    }
+  }
+
   render_scene(context, program_state, shadow_pass, draw_shadow = false) {
     let t = program_state.animation_time,
       dt = program_state.animation_delta_time / 1000;
     let model_transform = Mat4.identity();
 
-    if (this.startgame) {
+    if (this.startgame && this.lives != 0) {
       program_state.draw_shadow = draw_shadow;
 
       // Draw points count
@@ -684,9 +753,21 @@ export class BurgerTowers extends Scene {
         this.materials.text_image
       );
 
-      // Draws all the items in the background
       this.draw_background_items(context, program_state, model_transform, t);
 
+      // onClick event
+      const mouse_position = (e, rect = context.canvas.getBoundingClientRect()) =>
+          vec((e.clientX - (rect.left + rect.right) / 2) / ((rect.right - rect.left) / 2),
+              (e.clientY - (rect.bottom + rect.top) / 2) / ((rect.top - rect.bottom) / 2));
+
+      context.canvas.addEventListener("click", e => {
+        e.preventDefault();
+        this.mousex = mouse_position(e)[0];
+        this.mousey = mouse_position(e)[1];
+      });
+
+      // Cash in function to gain a life but lose points, and throw away some ingredients on the stack
+      this.cashing_in(context, program_state, model_transform);
       if (this.paused) {
         let pause_btn_transform = model_transform
           .times(Mat4.translation(-5, 10, 11, 0))
