@@ -28,7 +28,7 @@ const {
   Texture,
 } = tiny;
 
-const { Cube, Axis_Arrows, Textured_Phong } = defs;
+const { Cube, Textured_Phong } = defs;
 
 export class BurgerTowers extends Scene {
   /**
@@ -299,20 +299,6 @@ export class BurgerTowers extends Scene {
       this.stacked_ingredients = [];
       this.unstacked_ingredients = [];
     });
-    //     // loop background audio
-    //     if (typeof this.background_sound.loop == 'boolean')
-    //     {
-    //         this.background_sound.loop = true;
-    //     }
-    //     else
-    //     {
-    //         this.background_sound.addEventListener('ended', function() {
-    //             this.currentTime = 0;
-    //             this.play();
-    //         }, false);
-    //     }
-    //     this.background_sound.play();
-    // });
 
     // ****** User Burger Interactions ****** //
     // Up Movement (arrow key up)
@@ -338,15 +324,7 @@ export class BurgerTowers extends Scene {
         this.x_movement = this.x_movement + 1;
       }
     });
-    // TODO - add menu and settings options
-    // ******** Extra key triggered features ********* //
-    // this.key_triggered_button("Change Lighting Color", ['c'], () => {
-    //     this.change_lighting_color = true;
-    // });
-    // this.key_triggered_button("Stop Music", ['s'], () => {
-    //     // loop background audio
-    //     this.background_sound.pause();
-    // });
+
     // Pause Game (p key)
     this.key_triggered_button("Pause", ["p"], () => {
       this.paused = !this.paused;
@@ -421,14 +399,6 @@ export class BurgerTowers extends Scene {
         .times(Mat4.translation(x_coord, y_coord + y_offset, 0, 0))
         .times(Mat4.scale(1.5, 1.8, 1, 0));
 
-      // this.shapes[ingredient].draw(
-      //   context,
-      //   program_state,
-      //   model_transform_ingredient,
-      //   shadow_pass
-      //     ? this.materials.guppies.override({ color: fish_color })
-      //     : this.pure
-      // );
       this.shapes[ingredient].draw(
         context,
         program_state,
