@@ -47,10 +47,6 @@ export class BurgerTowers extends Scene {
       lettuce: new Shape_From_File("assets/lettuce/lettuce.obj"),
       cheese: new Shape_From_File("assets/cheese/cheese.obj"),
       burger_patty: new Shape_From_File("assets/burger-patty/burger-patty.obj"),
-      // floor: new defs.Capped_Cylinder(50, 50, [
-      //   [0, 2],
-      //   [0, 1],
-      // ]),
       floor: new Cube(),
       text: new Text_Line(35),
       diner: new Cube(),
@@ -225,16 +221,16 @@ export class BurgerTowers extends Scene {
     this.lightDepthTextureSize = LIGHT_DEPTH_TEX_SIZE;
     gl.bindTexture(gl.TEXTURE_2D, this.lightDepthTexture);
     gl.texImage2D(
-      gl.TEXTURE_2D, // target
-      0, // mip level
-      gl.DEPTH_COMPONENT, // internal format
-      this.lightDepthTextureSize, // width
-      this.lightDepthTextureSize, // height
-      0, // border
-      gl.DEPTH_COMPONENT, // format
-      gl.UNSIGNED_INT, // type
+      gl.TEXTURE_2D,
+      0,
+      gl.DEPTH_COMPONENT,
+      this.lightDepthTextureSize,
+      this.lightDepthTextureSize, 
+      0, 
+      gl.DEPTH_COMPONENT, 
+      gl.UNSIGNED_INT,
       null
-    ); // data
+    );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -244,15 +240,13 @@ export class BurgerTowers extends Scene {
     this.lightDepthFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.lightDepthFramebuffer);
     gl.framebufferTexture2D(
-      gl.FRAMEBUFFER, // target
-      gl.DEPTH_ATTACHMENT, // attachment point
-      gl.TEXTURE_2D, // texture target
-      this.lightDepthTexture, // texture
+      gl.FRAMEBUFFER, 
+      gl.DEPTH_ATTACHMENT, 
+      gl.TEXTURE_2D,
+      this.lightDepthTexture, 
       0
-    ); // mip level
+    ); 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    // create a color texture of the same size as the depth texture
-    // see article why this is needed_
     this.unusedTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.unusedTexture);
     gl.texImage2D(
@@ -270,14 +264,13 @@ export class BurgerTowers extends Scene {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    // attach it to the framebuffer
     gl.framebufferTexture2D(
-      gl.FRAMEBUFFER, // target
-      gl.COLOR_ATTACHMENT0, // attachment point
-      gl.TEXTURE_2D, // texture target
-      this.unusedTexture, // texture
+      gl.FRAMEBUFFER, 
+      gl.COLOR_ATTACHMENT0, 
+      gl.TEXTURE_2D, 
+      this.unusedTexture,
       0
-    ); // mip level
+    ); 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
@@ -286,20 +279,6 @@ export class BurgerTowers extends Scene {
     this.key_triggered_button("Start", ["Enter"], () => {
       this.startgame = !this.startgame;
     });
-    //     // loop background audio
-    //     if (typeof this.background_sound.loop == 'boolean')
-    //     {
-    //         this.background_sound.loop = true;
-    //     }
-    //     else
-    //     {
-    //         this.background_sound.addEventListener('ended', function() {
-    //             this.currentTime = 0;
-    //             this.play();
-    //         }, false);
-    //     }
-    //     this.background_sound.play();
-    // });
 
     // ****** User Burger Interactions ****** //
     // Up Movement (arrow key up)
@@ -325,15 +304,7 @@ export class BurgerTowers extends Scene {
         this.x_movement = this.x_movement + 1;
       }
     });
-    // TODO - add menu and settings options
-    // ******** Extra key triggered features ********* //
-    // this.key_triggered_button("Change Lighting Color", ['c'], () => {
-    //     this.change_lighting_color = true;
-    // });
-    // this.key_triggered_button("Stop Music", ['s'], () => {
-    //     // loop background audio
-    //     this.background_sound.pause();
-    // });
+
     // Pause Game (p key)
     this.key_triggered_button("Pause", ["p"], () => {
       this.paused = !this.paused;
@@ -408,14 +379,6 @@ export class BurgerTowers extends Scene {
         .times(Mat4.translation(x_coord, y_coord + y_offset, 0, 0))
         .times(Mat4.scale(1.5, 1.8, 1, 0));
 
-      // this.shapes[ingredient].draw(
-      //   context,
-      //   program_state,
-      //   model_transform_ingredient,
-      //   shadow_pass
-      //     ? this.materials.guppies.override({ color: fish_color })
-      //     : this.pure
-      // );
       this.shapes[ingredient].draw(
         context,
         program_state,
