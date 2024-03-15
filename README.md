@@ -14,4 +14,4 @@ A 3D game where you try to build the tallest and juiciest burger!
 
 Daniel Teo // dteo318@g.ucla.edu // dteo318
 
-William Wu // wwill24@ucla.edu // wwill24
+William Wu // wwill24@g.ucla.edu // wwill24
